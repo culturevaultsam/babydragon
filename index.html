@@ -21,8 +21,8 @@
   /* brand mark */
   #brand { position:fixed; top:20px; left:22px; z-index:5; transition:opacity .5s;
            font:600 12px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:3px; color:rgba(255,255,255,0.88); }
-  #brand .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#e3262d;
-                box-shadow:0 0 9px #e3262d; margin-right:8px; vertical-align:middle; animation:blink 1.6s infinite; }
+  #brand .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#ff2238;
+                box-shadow:0 0 9px #ff2238; margin-right:8px; vertical-align:middle; animation:blink 1.6s infinite; }
   #brand small { display:block; font-weight:400; font-size:9.5px; letter-spacing:2px; color:rgba(255,255,255,0.42); margin-top:4px; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
   /* minimal control: code field + enter only */
@@ -34,10 +34,10 @@
         border:1px solid rgba(255,255,255,0.28); border-radius:8px; outline:none;
         transition:border-color .15s, box-shadow .15s; }
   #pw::placeholder { color:rgba(255,255,255,0.35); letter-spacing:2px; }
-  #pw:focus { border-color:#e0242b; box-shadow:0 0 0 3px rgba(224,36,43,0.28); }
+  #pw:focus { border-color:#ff2238; box-shadow:0 0 0 3px rgba(255,34,56,0.28); }
   #go { padding:12px 24px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
-        color:#fff; background:linear-gradient(180deg,#e3262d,#a3151b); border:none; border-radius:8px;
-        cursor:pointer; box-shadow:0 6px 18px rgba(224,36,43,0.35); transition:filter .15s; }
+        color:#fff; background:linear-gradient(180deg,#ff2238,#c2101f); border:none; border-radius:8px;
+        cursor:pointer; box-shadow:0 6px 18px rgba(255,34,56,0.35); transition:filter .15s; }
   #go:hover { filter:brightness(1.1); }
   #go:disabled { filter:grayscale(.4) brightness(.8); cursor:default; }
   #err { color:#ff5a60; font-size:12px; letter-spacing:.5px; min-height:15px; text-align:center; }
@@ -48,7 +48,7 @@
     30%,50%,70%{transform:translateX(-50%) translateX(-7px)} 40%,60%{transform:translateX(-50%) translateX(7px)} }
   #loading { position:fixed; inset:0; z-index:6; display:flex; align-items:center; justify-content:center;
              background:#050507; transition:opacity .6s; }
-  #loading .bar { width:34px; height:2px; background:linear-gradient(90deg,transparent,#e3262d,transparent);
+  #loading .bar { width:34px; height:2px; background:linear-gradient(90deg,transparent,#ff2238,transparent);
                   animation:pulse 1.1s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:.15} 50%{opacity:1} }
 </style>
@@ -122,7 +122,7 @@ async function init(){
   scene.add(new THREE.AmbientLight(0xffffff, 0.45));
   const keyL = new THREE.DirectionalLight(0xffffff, 2.6); keyL.position.set(-4,5,6); scene.add(keyL);
   const rim = new THREE.DirectionalLight(0xbfc6d0, 1.6); rim.position.set(5,-2,3); scene.add(rim);
-  const red = new THREE.PointLight(0xff2230, 0.9, 24); red.position.set(2.5,-2.5,2.5); scene.add(red);
+  const red = new THREE.PointLight(0xff2238, 0.9, 24); red.position.set(2.5,-2.5,2.5); scene.add(red);
   const warm = new THREE.PointLight(0xffffff, 0.0, 30); warm.position.set(0,0,-1.3); scene.add(warm);
   innerLight = warm;
 
@@ -130,8 +130,8 @@ async function init(){
   const chrome   = new THREE.MeshStandardMaterial({ color:0xd6dadf, metalness:1.0, roughness:0.08 });
   const steel    = new THREE.MeshStandardMaterial({ color:0xb4b9c0, metalness:1.0, roughness:0.16 });
   const blackMet = new THREE.MeshStandardMaterial({ color:0x1c1e22, metalness:1.0, roughness:0.30 });
-  const redMat   = new THREE.MeshStandardMaterial({ color:0xb31119, metalness:0.6, roughness:0.30,
-                                                    emissive:0xff1a22, emissiveIntensity:0.35 });
+  const redMat   = new THREE.MeshStandardMaterial({ color:0xff2238, metalness:0.6, roughness:0.30,
+                                                    emissive:0xff2238, emissiveIntensity:0.4 });
 
   vault = new THREE.Group(); scene.add(vault);
 
@@ -148,7 +148,7 @@ async function init(){
   frame2.position.z = 0.0; vault.add(frame2);
 
   // digital "scan" ring — cyan, slowly rotating, signals active encryption
-  const scanMat = new THREE.LineDashedMaterial({ color:0x00e5ff, transparent:true, opacity:0.55, dashSize:0.18, gapSize:0.12 });
+  const scanMat = new THREE.LineDashedMaterial({ color:0xff2238, transparent:true, opacity:0.55, dashSize:0.18, gapSize:0.12 });
   scanRing = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(
     Array.from({length:129}, (_,i)=> new THREE.Vector3(Math.cos(i/128*Math.PI*2)*2.32, Math.sin(i/128*Math.PI*2)*2.32, 0))
   ), scanMat);
@@ -198,11 +198,11 @@ async function init(){
   orb = new THREE.Group();
   orb.position.set(0, 0, 1.45);     // hovering in front of the door
   orb.scale.setScalar(0.72);
-  const wireMat  = new THREE.LineBasicMaterial({ color:0x00e5ff, transparent:true, opacity:0.9 });
+  const wireMat  = new THREE.LineBasicMaterial({ color:0xff2238, transparent:true, opacity:0.9 });
   orb.add(new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(1.7,1)), wireMat));
-  const oInnerMat = new THREE.MeshBasicMaterial({ color:0xff2d78, transparent:true, opacity:0.12 });
+  const oInnerMat = new THREE.MeshBasicMaterial({ color:0xff2238, transparent:true, opacity:0.10 });
   orb.add(new THREE.Mesh(new THREE.IcosahedronGeometry(1.15,0), oInnerMat));
-  const tetraMat = new THREE.LineBasicMaterial({ color:0xc6ff00, transparent:true, opacity:0.4 });
+  const tetraMat = new THREE.LineBasicMaterial({ color:0xcfcfd6, transparent:true, opacity:0.35 });
   orb.add(new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.TetrahedronGeometry(2.5,0)), tetraMat));
   vault.add(orb);
   orbMats = [[wireMat,0.9],[oInnerMat,0.12],[tetraMat,0.4]];
@@ -270,11 +270,29 @@ function startUnlock(){
   $('brand').style.opacity = '0';
 }
 
+// The standalone export pins a fixed #__bundler_err / #__bundler_loading debug
+// badge when any embedded chunk fails to decode. Same-origin (blob:) so we can
+// suppress that dev overlay for the client; CSS matches even if added async.
+function hideBundlerDebug(f){
+  const inject = () => { try{
+    const doc = f.contentDocument; if(!doc) return;
+    if(!doc.getElementById('__cv_hide')){
+      const s = doc.createElement('style'); s.id = '__cv_hide';
+      s.textContent = '#__bundler_err,#__bundler_loading{display:none!important}';
+      (doc.head || doc.documentElement).appendChild(s);
+    }
+    doc.querySelectorAll('#__bundler_err').forEach(n => n.remove());
+  }catch(_){}};
+  f.addEventListener('load', inject);
+  let n = 0; const iv = setInterval(() => { inject(); if(++n > 28) clearInterval(iv); }, 250);
+}
+
 function reveal(){
   if(state === 'open') return;
   state = 'open';
   const f = document.createElement('iframe');
   f.id = 'frame'; f.src = pendingIframeURL;
+  hideBundlerDebug(f);
   document.body.appendChild(f);
   $('scene').style.display = 'none';
   $('scan').style.display = 'none';
@@ -314,6 +332,7 @@ init().catch(err => {
       const plain = await decrypt($('pw').value);
       const url = URL.createObjectURL(new Blob([plain],{type:'text/html'}));
       const f=document.createElement('iframe'); f.id='frame'; f.style.zIndex=9; f.src=url;
+      hideBundlerDebug(f);
       document.body.appendChild(f);
     }catch(_){ go.disabled=false; go.textContent='Enter'; $('err').textContent='Incorrect code.'; }
   };

@@ -311,6 +311,37 @@ function enhanceRevealed(f){
       (doc.head || doc.documentElement).appendChild(s);
     }
     doc.querySelectorAll('#__bundler_err').forEach(n => n.remove());
+    // mobile: the section-6 episode clips only play on desktop hover (dead on touch). Make them a
+    // clear, tappable "CLICK TO RUN" control. React re-renders these cards, so per-node handlers get
+    // wiped — use event delegation on the document + a MutationObserver to stay attached.
+    const W = f.contentWindow;
+    if(W && W.matchMedia('(max-width:700px)').matches){
+      const relabel = () => {
+        doc.querySelectorAll('video').forEach(v => { v.setAttribute('playsinline',''); v.muted = true; v.loop = true; });
+        doc.querySelectorAll('div').forEach(el => {
+          if(el.children.length === 0 && /^\s*▶\s*HOVER\s*$/i.test(el.textContent)){
+            el.textContent = '▶ CLICK TO RUN';
+            el.style.cssText += ';font-size:11px;padding:6px 11px;cursor:pointer;';
+          }
+        });
+      };
+      relabel();
+      if(!doc.__cvVid){
+        doc.__cvVid = true;
+        doc.addEventListener('click', e => {
+          let host = e.target, hops = 0, v = null;
+          while(host && hops < 8){ if(host.querySelector && (v = host.querySelector('video'))) break; host = host.parentElement; hops++; }
+          if(!v || !host) return;
+          const tag = [...host.querySelectorAll('div')].find(x => x.children.length === 0 && /CLICK TO RUN|■\s*STOP/i.test(x.textContent));
+          if(!tag) return;                              // only the relabelled episode cards react
+          e.preventDefault(); e.stopPropagation();
+          if(v.paused){ try{ v.currentTime = 0; }catch(_){} v.style.opacity = '1';
+            const p = v.play(); if(p && p.catch) p.catch(()=>{}); tag.textContent = '■ STOP'; }
+          else { v.pause(); v.style.opacity = '0'; tag.textContent = '▶ CLICK TO RUN'; }
+        }, true);
+        new W.MutationObserver(relabel).observe(doc.body, { childList:true, subtree:true });
+      }
+    }
   }catch(_){}};
   f.addEventListener('load', inject);
   let n = 0; const iv = setInterval(() => { inject(); if(++n > 28) clearInterval(iv); }, 250);

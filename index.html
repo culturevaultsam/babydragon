@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Protected Preview</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body { background:#0a0a12; color:#e8e8f0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+         display:flex; align-items:center; justify-content:center; }
+  .card { width:min(92vw,360px); text-align:center; padding:36px 28px;
+          background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+          border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+  .lock { font-size:34px; margin-bottom:14px; }
+  h1 { font-size:18px; font-weight:600; margin-bottom:6px; letter-spacing:.2px; }
+  p { font-size:13px; color:#8a8aa0; margin-bottom:22px; }
+  input { width:100%; padding:12px 14px; font-size:15px; color:#fff; text-align:center;
+          background:#14141f; border:1px solid rgba(255,255,255,0.12); border-radius:10px; outline:none; }
+  input:focus { border-color:#6c6cff; }
+  button { width:100%; margin-top:12px; padding:12px 14px; font-size:15px; font-weight:600; color:#fff;
+           background:#5b5bf0; border:none; border-radius:10px; cursor:pointer; transition:background .15s; }
+  button:hover { background:#6e6efc; }
+  button:disabled { opacity:.6; cursor:default; }
+  .err { color:#ff7a7a; font-size:13px; margin-top:14px; min-height:18px; }
+  iframe { position:fixed; inset:0; width:100%; height:100%; border:0; background:#0a0a12; }
+</style>
+</head>
+<body>
+  <div class="card" id="gate">
+    <div class="lock">🔒</div>
+    <h1>Protected Preview</h1>
+    <p>Enter the password to view.</p>
+    <form id="f">
+      <input id="pw" type="password" autocomplete="off" autofocus placeholder="Password" />
+      <button id="go" type="submit">Unlock</button>
+    </form>
+    <div class="err" id="err"></div>
+  </div>
+<script>
+const ITER = 200000;
+const $ = id => document.getElementById(id);
+async function unlock(e){
+  e.preventDefault();
+  const pw = $('pw').value;
+  const err = $('err'), go = $('go');
+  err.textContent=''; go.disabled=true; go.textContent='Decrypting…';
+  try{
+    const buf = new Uint8Array(await (await fetch('content.enc')).arrayBuffer());
+    const salt = buf.slice(0,16), iv = buf.slice(16,28), data = buf.slice(28);
+    const baseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations:ITER, hash:'SHA-256' },
+      baseKey, { name:'AES-GCM', length:256 }, false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, data);
+    const blob = new Blob([plain], { type:'text/html' });
+    const url = URL.createObjectURL(blob);
+    document.body.innerHTML = '';
+    const f = document.createElement('iframe');
+    f.src = url; document.body.appendChild(f);
+  }catch(_){
+    go.disabled=false; go.textContent='Unlock';
+    err.textContent='Incorrect password.';
+    $('pw').value=''; $('pw').focus();
+  }
+}
+$('f').addEventListener('submit', unlock);
+</script>
+</body>
+</html>

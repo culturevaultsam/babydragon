@@ -4,54 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>The Vault</title>
+<title>Preview</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  html,body { height:100%; overflow:hidden; background:#06060a; }
-  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#e8e8f0; }
+  html,body { height:100%; overflow:hidden; background:#050507; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#fff; }
   #scene { position:fixed; inset:0; z-index:2; }
-  #frame { position:fixed; inset:0; z-index:1; border:0; width:100%; height:100%; background:#06060a; }
+  #frame { position:fixed; inset:0; z-index:1; border:0; width:100%; height:100%; background:#050507; }
   #flash { position:fixed; inset:0; z-index:3; pointer-events:none; opacity:0;
-           background:radial-gradient(circle at 50% 50%, #fff7e6 0%, #ffe9bd 40%, #f3c97a 100%); }
-  /* control panel */
-  #panel { position:fixed; left:50%; bottom:6vh; transform:translateX(-50%); z-index:4;
-           width:min(90vw,340px); text-align:center; padding:22px 22px 24px;
-           background:rgba(16,16,24,0.66); backdrop-filter:blur(14px);
-           border:1px solid rgba(255,255,255,0.10); border-radius:16px;
-           box-shadow:0 18px 50px rgba(0,0,0,0.55); transition:opacity .5s, transform .5s; }
-  #panel h1 { font-size:17px; font-weight:600; letter-spacing:.4px; margin-bottom:4px; }
-  #panel p { font-size:12.5px; color:#9a9ab2; margin-bottom:16px; }
+           background:radial-gradient(circle at 50% 50%, #ffffff 0%, #eef0f3 45%, #c7cace 100%); }
+  /* minimal control: code field + enter only */
+  #panel { position:fixed; left:50%; bottom:7vh; transform:translateX(-50%); z-index:4;
+           display:flex; flex-direction:column; align-items:center; gap:10px;
+           transition:opacity .5s, transform .5s; }
   #row { display:flex; gap:8px; }
-  #pw { flex:1; padding:11px 14px; font-size:15px; color:#fff; text-align:center;
-        background:#0e0e17; border:1px solid rgba(255,255,255,0.14); border-radius:10px; outline:none;
-        transition:border-color .15s; }
-  #pw:focus { border-color:#c9a25a; }
-  #go { padding:11px 16px; font-size:14px; font-weight:600; color:#1a1206; white-space:nowrap;
-        background:linear-gradient(180deg,#e8c87e,#c79a45); border:none; border-radius:10px; cursor:pointer;
-        transition:filter .15s, opacity .15s; }
-  #go:hover { filter:brightness(1.08); }
-  #go:disabled { opacity:.7; cursor:default; }
-  #err { color:#ff8a8a; font-size:12.5px; margin-top:12px; min-height:16px; }
+  #pw { width:200px; padding:12px 16px; font-size:15px; letter-spacing:4px; text-align:center;
+        color:#fff; background:rgba(12,12,14,0.55); backdrop-filter:blur(8px);
+        border:1px solid rgba(255,255,255,0.28); border-radius:8px; outline:none;
+        transition:border-color .15s, box-shadow .15s; }
+  #pw::placeholder { color:rgba(255,255,255,0.35); letter-spacing:2px; }
+  #pw:focus { border-color:#e0242b; box-shadow:0 0 0 3px rgba(224,36,43,0.28); }
+  #go { padding:12px 24px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+        color:#fff; background:linear-gradient(180deg,#e3262d,#a3151b); border:none; border-radius:8px;
+        cursor:pointer; box-shadow:0 6px 18px rgba(224,36,43,0.35); transition:filter .15s; }
+  #go:hover { filter:brightness(1.1); }
+  #go:disabled { filter:grayscale(.4) brightness(.8); cursor:default; }
+  #err { color:#ff5a60; font-size:12px; letter-spacing:.5px; min-height:15px; text-align:center; }
   .shake { animation:shake .45s; }
   @keyframes shake { 10%,90%{transform:translateX(-50%) translateX(-2px)} 20%,80%{transform:translateX(-50%) translateX(4px)}
     30%,50%,70%{transform:translateX(-50%) translateX(-7px)} 40%,60%{transform:translateX(-50%) translateX(7px)} }
-  #hint { position:fixed; top:18px; left:50%; transform:translateX(-50%); z-index:4; transition:opacity .5s;
-          font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#6a6a82; }
   #loading { position:fixed; inset:0; z-index:5; display:flex; align-items:center; justify-content:center;
-             background:#06060a; color:#6a6a82; font-size:13px; transition:opacity .6s; }
+             background:#050507; transition:opacity .6s; }
+  #loading .bar { width:34px; height:2px; background:linear-gradient(90deg,transparent,#e3262d,transparent);
+                  animation:pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.15} 50%{opacity:1} }
 </style>
 </head>
 <body>
-<div id="loading">Opening the vault room…</div>
-<div id="hint">Secure Preview</div>
+<div id="loading"><div class="bar"></div></div>
 <canvas id="scene"></canvas>
 <div id="flash"></div>
 <div id="panel">
-  <h1>The Vault</h1>
-  <p>Enter your key to unlock the preview.</p>
   <form id="f"><div id="row">
-    <input id="pw" type="password" autocomplete="off" autofocus placeholder="Key" />
-    <button id="go" type="submit">Insert&nbsp;Key</button>
+    <input id="pw" type="password" autocomplete="off" autofocus placeholder="Code" />
+    <button id="go" type="submit">Enter</button>
   </div></form>
   <div id="err"></div>
 </div>
@@ -70,7 +66,7 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 const easeInOut = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
 const clamp01 = t => Math.max(0, Math.min(1, t));
 
-/* ---------- decryption (password = the key) ---------- */
+/* ---------- decryption (the code is the key) ---------- */
 async function decrypt(pw){
   const buf = new Uint8Array(await (await fetch('content.enc')).arrayBuffer());
   const salt = buf.slice(0,16), iv = buf.slice(16,28), data = buf.slice(28);
@@ -78,7 +74,7 @@ async function decrypt(pw){
   const key = await crypto.subtle.deriveKey(
     { name:'PBKDF2', salt, iterations:ITER, hash:'SHA-256' },
     baseKey, { name:'AES-GCM', length:256 }, false, ['decrypt']);
-  return crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, data); // throws on wrong key
+  return crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, data); // throws on wrong code
 }
 
 let THREE, scene, camera, renderer, vault, wheel, doorPivot, bolts=[], innerLight;
@@ -93,42 +89,44 @@ async function init(){
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   renderer.setSize(innerWidth, innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 1.0;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x06060a);
+  scene.background = new THREE.Color(0x050507);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture;
 
   camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
   camera.position.set(0, 0, 6.6);
 
-  // lights
-  scene.add(new THREE.AmbientLight(0x404050, 0.6));
-  const keyL = new THREE.DirectionalLight(0xfff0d8, 2.4); keyL.position.set(-4,5,6); scene.add(keyL);
-  const rim = new THREE.DirectionalLight(0x5a7cff, 1.4); rim.position.set(5,-2,3); scene.add(rim);
-  const warm = new THREE.PointLight(0xffcaa0, 0.0, 30); warm.position.set(0,0,-1.3); scene.add(warm);
+  // lights — clean white key + cool rim + red kicker
+  scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+  const keyL = new THREE.DirectionalLight(0xffffff, 2.6); keyL.position.set(-4,5,6); scene.add(keyL);
+  const rim = new THREE.DirectionalLight(0xbfc6d0, 1.6); rim.position.set(5,-2,3); scene.add(rim);
+  const red = new THREE.PointLight(0xff2230, 0.9, 24); red.position.set(2.5,-2.5,2.5); scene.add(red);
+  const warm = new THREE.PointLight(0xffffff, 0.0, 30); warm.position.set(0,0,-1.3); scene.add(warm);
   innerLight = warm;
 
-  // materials
-  const steel = new THREE.MeshStandardMaterial({ color:0x474d57, metalness:1.0, roughness:0.34 });
-  const steelDark = new THREE.MeshStandardMaterial({ color:0x23262d, metalness:0.95, roughness:0.5 });
-  const brass = new THREE.MeshStandardMaterial({ color:0xc89a4a, metalness:1.0, roughness:0.26 });
-  const boltMat = new THREE.MeshStandardMaterial({ color:0x6b7180, metalness:1.0, roughness:0.3 });
+  // materials — black / white / chrome, with silver + red secondary
+  const chrome   = new THREE.MeshStandardMaterial({ color:0xd6dadf, metalness:1.0, roughness:0.08 });
+  const steel    = new THREE.MeshStandardMaterial({ color:0xb4b9c0, metalness:1.0, roughness:0.16 });
+  const blackMet = new THREE.MeshStandardMaterial({ color:0x1c1e22, metalness:1.0, roughness:0.30 });
+  const redMat   = new THREE.MeshStandardMaterial({ color:0xb31119, metalness:0.6, roughness:0.30,
+                                                    emissive:0xff1a22, emissiveIntensity:0.35 });
 
   vault = new THREE.Group(); scene.add(vault);
 
   // interior glow plane (behind the door)
   const inner = new THREE.Mesh(new THREE.CircleGeometry(2.0, 48),
-    new THREE.MeshBasicMaterial({ color:0x0c0c14 }));
+    new THREE.MeshBasicMaterial({ color:0x070709 }));
   inner.position.z = -1.4; vault.add(inner);
   vault.userData.inner = inner;
 
   // outer frame ring
-  const frame = new THREE.Mesh(new THREE.TorusGeometry(2.45, 0.42, 24, 64), steelDark);
+  const frame = new THREE.Mesh(new THREE.TorusGeometry(2.45, 0.42, 24, 64), blackMet);
   frame.position.z = -0.2; vault.add(frame);
-  const frame2 = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.16, 20, 64), steel);
+  const frame2 = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.16, 20, 64), chrome);
   frame2.position.z = 0.0; vault.add(frame2);
 
   // ---- door (swings on a hinge at the left edge) ----
@@ -143,28 +141,33 @@ async function init(){
   disc.rotation.x = Math.PI/2; door.add(disc);
   // concentric detail rings on the face
   [[1.7,0.05],[1.25,0.05],[0.8,0.05]].forEach(([r,t])=>{
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(r, t, 16, 64), steelDark);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r, t, 16, 64), blackMet);
     ring.position.z = 0.22; door.add(ring);
   });
+  // thin red accent ring
+  const redRing = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.03, 12, 64), redMat);
+  redRing.position.z = 0.24; door.add(redRing);
 
-  // bolts around the rim
+  // bolts around the rim (red accents)
   for(let i=0;i<8;i++){
     const a = i/8 * Math.PI*2;
-    const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.2), boltMat);
+    const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.2), redMat);
     b.userData.angle = a; b.userData.r0 = 1.92;
     placeBolt(b, 1.92); door.add(b); bolts.push(b);
   }
 
-  // ---- central locking wheel (brass) ----
+  // ---- central locking wheel (chrome) ----
   wheel = new THREE.Group(); wheel.position.z = 0.24; door.add(wheel);
-  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.34,0.3,32), brass);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.34,0.3,32), chrome);
   hub.rotation.x = Math.PI/2; wheel.add(hub);
-  const rim3 = new THREE.Mesh(new THREE.TorusGeometry(0.62,0.075,16,48), brass); wheel.add(rim3);
+  const hubCore = new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,0.34,24), redMat);
+  hubCore.rotation.x = Math.PI/2; wheel.add(hubCore); // red center
+  const rim3 = new THREE.Mesh(new THREE.TorusGeometry(0.62,0.075,16,48), chrome); wheel.add(rim3);
   for(let i=0;i<5;i++){
     const ang = i/5*Math.PI*2;
-    const sp = new THREE.Mesh(new THREE.BoxGeometry(1.24,0.075,0.075), brass);
+    const sp = new THREE.Mesh(new THREE.BoxGeometry(1.24,0.075,0.075), chrome);
     sp.rotation.z = ang; wheel.add(sp);
-    const knob = new THREE.Mesh(new THREE.SphereGeometry(0.08,16,16), brass);
+    const knob = new THREE.Mesh(new THREE.SphereGeometry(0.08,16,16), chrome);
     knob.position.set(Math.cos(ang)*0.62, Math.sin(ang)*0.62, 0); wheel.add(knob);
   }
 
@@ -202,8 +205,8 @@ function animate(){
     const dp = easeInOut(clamp01((p-0.42)/0.53));       // 3) door swings open
     doorPivot.rotation.y = dp * 1.85;
     const cp = easeInOut(clamp01((p-0.5)/0.5));          // 4) light swell + camera dolly
-    innerLight.intensity = cp * 9;
-    vault.userData.inner.material.color.setRGB(0.05+cp*0.95, 0.05+cp*0.9, 0.05+cp*0.78);
+    innerLight.intensity = cp * 10;
+    vault.userData.inner.material.color.setRGB(0.03+cp*0.97, 0.03+cp*0.97, 0.03+cp*0.97);
     camera.position.z = 6.6 - cp*5.6;
     camera.position.x = cp*0.35;
     vault.rotation.set(0,0,0);
@@ -218,7 +221,6 @@ function startUnlock(){
   tStart = performance.now();
   $('panel').style.opacity = '0';
   $('panel').style.transform = 'translateX(-50%) translateY(20px)';
-  $('hint').style.opacity = '0';
 }
 
 function reveal(){
@@ -237,14 +239,14 @@ $('f').addEventListener('submit', async e => {
   e.preventDefault();
   if(state !== 'idle') return;
   const go = $('go'), err = $('err'), panel = $('panel');
-  err.textContent=''; go.disabled=true; go.textContent='Turning…';
+  err.textContent=''; go.disabled=true; go.textContent='…';
   try {
     const plain = await decrypt($('pw').value);
     pendingIframeURL = URL.createObjectURL(new Blob([plain], { type:'text/html' }));
     startUnlock();
   } catch(_){
-    go.disabled=false; go.textContent='Insert Key';
-    err.textContent='Wrong key — the vault stays shut.';
+    go.disabled=false; go.textContent='Enter';
+    err.textContent='Incorrect code.';
     panel.classList.remove('shake'); void panel.offsetWidth; panel.classList.add('shake');
     $('pw').value=''; $('pw').focus();
   }
@@ -257,13 +259,13 @@ init().catch(err => {
   state = 'idle';
   $('f').onsubmit = async e => {
     e.preventDefault();
-    const go=$('go'); go.disabled=true; go.textContent='Unlocking…';
+    const go=$('go'); go.disabled=true; go.textContent='…';
     try{
       const plain = await decrypt($('pw').value);
       const url = URL.createObjectURL(new Blob([plain],{type:'text/html'}));
       const f=document.createElement('iframe'); f.id='frame'; f.style.zIndex=9; f.src=url;
       document.body.appendChild(f);
-    }catch(_){ go.disabled=false; go.textContent='Insert Key'; $('err').textContent='Wrong key.'; }
+    }catch(_){ go.disabled=false; go.textContent='Enter'; $('err').textContent='Incorrect code.'; }
   };
 });
 </script>
